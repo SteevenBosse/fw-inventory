@@ -51,7 +51,7 @@ CFLAGS = \
     $(INC_FLAGS)
 
 LFLAGS = -Wl,-T,$(SRC_DIRS)/msp432p401r.lds \
-    "-Wl,-Map,$(SRC_DIRS)/$(NAME).map" \
+    "-Wl,-Map,$(BUILD_DIR)/$(NAME).map" \
     $(LD_FLAGS) \
     -l:ti/display/lib/display.am4fg \
     -l:ti/grlib/lib/gcc/m4f/grlib.a \
