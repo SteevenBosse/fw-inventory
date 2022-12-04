@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "Debug (OpenOCD)",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/blinkled_msp432p401r",
+            "showDevDebugOutput": "parsed",
+            "runToEntryPoint": "main",
+            "svdFile": "MSP432P401R.svd",
+            "configFiles": [
+                "board/ti_msp432_launchpad.cfg"
+            ],
+            "device": "msp432p401r"
+        }
+    ]
+}

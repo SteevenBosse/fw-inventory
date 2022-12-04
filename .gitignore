@@ -1,0 +1,4 @@
+build
+doc
+.vscode/*
+!.vscode/launch.json
