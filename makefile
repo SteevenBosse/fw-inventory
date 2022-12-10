@@ -1,7 +1,8 @@
 # For Linux
 TARGET_EXEC := fw_inventory
 BUILD_DIR := ./build
-SRC_DIRS := ./src
+SRC_DIR := ./src
+DEP_DIR := ./dep
 
 GCC_ARMCOMPILER ?= ${HOME}/ti/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux/gcc-arm-none-eabi-10.3-2021.10/
 SIMPLELINK_MSP432_SDK_INSTALL_DIR ?= ${HOME}/ti/simplelink_msp432p4_sdk_3_40_01_02
@@ -9,15 +10,34 @@ SIMPLELINK_MSP432_SDK_INSTALL_DIR ?= ${HOME}/ti/simplelink_msp432p4_sdk_3_40_01_
 CC = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 LNK = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 
-SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+SRCS := $(shell find $(SRC_DIR) -name '*.c' -or -name '*.s')
 OBJECTS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+FREERTOS_SRCS := $(shell find $(DEP_DIR)/FreeRTOS -name '*.c' -or -name '*.s')
+FREERTOS_OBJECTS := $(FREERTOS_SRCS:%=$(BUILD_DIR)/%.o)
+
+DPL_SRC := $(SIMPLELINK_MSP432_SDK_INSTALL_DIR)/kernel/freertos/dpl
+DPL_SRCS = \
+	$(DPL_SRC)/ClockP_freertos.c \
+	$(DPL_SRC)/DebugP_freertos.c \
+	$(DPL_SRC)/HwiPMSP432_freertos.c \
+	$(DPL_SRC)/MutexP_freertos.c \
+	$(DPL_SRC)/PowerMSP432_freertos.c \
+	$(DPL_SRC)/SemaphoreP_freertos.c \
+	$(DPL_SRC)/SystemP_freertos.c
+
+DPL_OBJECTS := $(DPL_SRCS:%=$(BUILD_DIR)/%.o)
 
 # Add include paths
 INC_DIRS := \
+	$(SRC_DIR) \
     $(SIMPLELINK_MSP432_SDK_INSTALL_DIR)/source \
     $(SIMPLELINK_MSP432_SDK_INSTALL_DIR)/source/third_party/CMSIS/Include \
+	$(SIMPLELINK_MSP432_SDK_INSTALL_DIR)/source/ti/devices/msp432p4xx/driverlib \
     $(GCC_ARMCOMPILER)/arm-none-eabi/include/newlib-nano \
-    $(GCC_ARMCOMPILER)/arm-none-eabi/include
+    $(GCC_ARMCOMPILER)/arm-none-eabi/include \
+    ${DEP_DIR}/FreeRTOS/include \
+    ${DEP_DIR}/FreeRTOS/portable/GCC/ARM_CM4F
 
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
@@ -46,11 +66,12 @@ CFLAGS = \
     -fdata-sections \
     -g \
     -gstrict-dwarf \
-    -Wall \
+    -Wunused \
+    -Wunknown-pragmas \
 	$(D_CFLAGS) \
     $(INC_FLAGS)
 
-LFLAGS = -Wl,-T,$(SRC_DIRS)/msp432p401r.lds \
+LFLAGS = -Wl,-T,$(SRC_DIR)/msp432p401r.lds \
     "-Wl,-Map,$(BUILD_DIR)/$(NAME).map" \
     $(LD_FLAGS) \
     -l:ti/display/lib/display.am4fg \
@@ -72,8 +93,8 @@ LFLAGS = -Wl,-T,$(SRC_DIRS)/msp432p401r.lds \
     --specs=nano.specs
 
 # The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJECTS)
-	$(LNK) $(OBJECTS) -o $@ $(LFLAGS)
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJECTS) $(FREERTOS_OBJECTS) $(DPL_OBJECTS)
+	$(LNK) $(OBJECTS) $(FREERTOS_OBJECTS) $(DPL_OBJECTS) -o $@ $(LFLAGS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
