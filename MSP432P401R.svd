@@ -40,7 +40,7 @@
 \n
   </licenseText>
    <!-- Bus Interface Properties -->
-   <addressUnitBits>8</addressUnitBits> 
+   <addressUnitBits>8</addressUnitBits>
    <width>32</width>
    <!-- -->
    <!-- Register Default Properties -->
@@ -41218,7 +41218,7 @@ instructions.</description>
                         <name>PIN_SRC</name>
                         <description>RSTn/NMI pin configuration
 
-Note: When the device enters LPM3/LPM4 modes of operation, the functionality selected by this bit is retained. If selected as an NMI, activity on this pin in 
+Note: When the device enters LPM3/LPM4 modes of operation, the functionality selected by this bit is retained. If selected as an NMI, activity on this pin in
 
 LPM3/LPM4 wakes the device and processes the interrupt, without causing a POR. If selected as a Reset, activity on this pin in LPM3/LPM4 causes a device-level POR
 
@@ -42299,4 +42299,3 @@ When the device enters LPM3.5/LPM4.5 modes of operation, this bit is always clea
     </peripheral>
    </peripherals>
 </device>
-
