@@ -79,9 +79,6 @@
 #include "semphr.h"
 #include "task.h"
 
-/* TI includes. */
-#include <ti/drivers/PWM.h>
-
 #include "driverlib.h"
 #include "gpio.h"
 
@@ -130,14 +127,13 @@ static void prvConfigureButton(void);
 static QueueHandle_t xQueue = NULL;
 
 /*-----------------------------------------------------------*/
-
-int main(void)
+int AppMain()
 {
     /* See http://www.FreeRTOS.org/TI_MSP432_Free_RTOS_Demo.html for
-  instructions and notes regarding the difference in power saving that can be
-  achieved between using the generic tickless RTOS implementation (as used by
-  the blinky demo) and a tickless RTOS implementation that is tailored
-  specifically to the MSP432. */
+instructions and notes regarding the difference in power saving that can be
+achieved between using the generic tickless RTOS implementation (as used by
+the blinky demo) and a tickless RTOS implementation that is tailored
+specifically to the MSP432. */
 
     /* The full demo configures the clocks for maximum frequency, whereas this
   blinky demo uses a slower clock as it also uses low power features. */
@@ -145,8 +141,6 @@ int main(void)
 
     /* Configure a button to generate interrupts (for test purposes). */
     prvConfigureButton();
-
-    PWM_init();
 
     /* Create the queue. */
     xQueue = xQueueCreate(mainQUEUE_LENGTH, sizeof(uint32_t));
@@ -183,7 +177,14 @@ int main(void)
     for (;;)
         ;
 }
+
+#ifndef TEST
+int main(void)
+{
+    return AppMain();
+}
 /*-----------------------------------------------------------*/
+#endif // TEST
 
 static void prvQueueSendTask(void *pvParameters)
 {
@@ -297,6 +298,7 @@ void vPreSleepProcessing(uint32_t ulExpectedIdleTime)
 {
 }
 
+#ifndef TEST
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     (void)pcTaskName;
@@ -309,3 +311,4 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
     for (;;)
         ;
 }
+#endif
